@@ -1,0 +1,39 @@
+// Step 1 :Filter data for Indore
+
+// Define the time range
+var startDate = '2014-01-01';
+var endDate = '2024-01-31';
+
+// Load the MODIS MOD13A1 dataset
+var dataset = ee.ImageCollection('MODIS/061/MOD13A1')
+  .filterBounds(geometry)
+  .filterDate(startDate, endDate);
+
+// Print the dataset to check available bands
+print('Dataset Info:', dataset);
+
+// Extract NDVI band
+var withNDVI = dataset.select('NDVI');
+
+// Print a sample image to verify
+var sampleImage = withNDVI.first();
+print('Sample Image:', sampleImage);
+
+// Create a time-series chart of NDVI values
+var chart = ui.Chart.image.series({
+  imageCollection: withNDVI,
+  region: geometry,
+  reducer: ee.Reducer.mean(),
+  scale: 500, // MODIS data resolution is 500 meters
+  xProperty: 'system:time_start'
+}).setOptions({
+  title: 'NDVI Time-Series for Indore (MODIS MOD13A1)',
+  ylabel: 'NDVI',
+  xlabel: 'Date',
+  lineWidth: 1,
+  pointSize: 3,
+  series: [{ color: 'blue', label: 'NDVI' }]
+});
+
+// Print the chart to the console
+print(chart);
